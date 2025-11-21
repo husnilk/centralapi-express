@@ -1,0 +1,222 @@
+openapi: 3.0.4
+info:
+  title: Sentral Data API
+  version: 1.0.0
+  description: API untuk mengakses data akademik di Fakultas Teknologi Informatika Universitas Andalas.
+  contact:
+    name: Tim Pengembang API
+    email: api.fti@unand.ac.id
+    url: https://fti.unand.ac.id/api-support
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: http://localhost:3000/
+    description: Local Development Server
+  - url: https://api.fti.unand.ac.id/
+    description: Production Server
+  - url: https://sandbox-api.fti.unand.ac.id/
+    description: Sandbox Server
+paths:
+  /auth/register:
+    post:
+      summary: Registrasi Pengguna Baru
+      description: Endpoint untuk mendaftarkan pengguna baru ke dalam sistem.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: user123
+                email:
+                  type: string
+                  example: user123@example.com
+                password:
+                  type: string
+                  example: securepassword
+      responses:
+        "201":
+          description: Pengguna berhasil didaftarkan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User registered successfully.
+                  user:
+                    $ref: "#/components/schemas/User"
+        "400":
+          description: Permintaan tidak valid. Data yang diberikan tidak lengkap atau salah.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Invalid input data.
+  /auth/login:
+    post:
+      summary: Login Pengguna
+      description: Endpoint untuk autentikasi pengguna dan mendapatkan token akses.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: user123
+                password:
+                  type: string
+                  example: securepassword
+      responses:
+        "200":
+          description: Berhasil login dan mendapatkan token akses.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Login successful.
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  user:
+                    $ref: "#/components/schemas/User"
+        "401":
+          description: Gagal autentikasi. Username atau password salah.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Invalid username or password.
+  /profile:
+    get:
+      summary: Ambil Profil Pengguna
+      description: Endpoint untuk mengambil data profil pengguna yang sudah terautentikasi.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Berhasil mengambil data profil pengguna.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/User"
+        "401":
+          description: Gagal autentikasi. Token akses tidak valid atau habis masa berlakunya.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Unauthorized access.
+    patch:
+      summary: Perbarui Profil Pengguna
+      description: Endpoint untuk memperbarui data profil pengguna yang sudah terautentikasi.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user123@example.com
+                name:
+                  type: string
+                  example: User Name
+      responses:
+        "200":
+          description: Berhasil memperbarui data profil pengguna.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Profile updated successfully.
+                  user:
+                    $ref: "#/components/schemas/User"
+        "400":
+          description: Permintaan tidak valid. Data yang diberikan tidak lengkap atau salah.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Invalid input data.
+        "401":
+          description: Gagal autentikasi. Token akses tidak valid atau habis masa berlakunya.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Unauthorized access."
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: user123
+        email:
+          type: string
+          example: user123@example.com
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiToken:
+      type: apiKey
+      in: header
+      name: X-API-KEY
