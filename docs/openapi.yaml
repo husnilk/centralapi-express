@@ -2,7 +2,7 @@ openapi: 3.0.4
 info:
   title: Sentral Data API
   version: 1.0.0
-  description: API untuk mengakses data akademik di Fakultas Teknologi Informatika Universitas Andalas.
+  description: API untuk mengakses data akademik di Fakultas Teknologi Informasi Universitas Andalas.
   contact:
     name: Tim Pengembang API
     email: api.fti@unand.ac.id
@@ -21,6 +21,8 @@ paths:
   /auth/register:
     post:
       summary: Registrasi Pengguna Baru
+      tags:
+        - Authentication
       description: Endpoint untuk mendaftarkan pengguna baru ke dalam sistem.
       requestBody:
         required: true
@@ -66,6 +68,8 @@ paths:
                     example: Invalid input data.
   /auth/login:
     post:
+      tags:
+        - Authentication
       summary: Login Pengguna
       description: Endpoint untuk autentikasi pengguna dan mendapatkan token akses.
       requestBody:
@@ -112,6 +116,8 @@ paths:
                     example: Invalid username or password.
   /profile:
     get:
+      tags:
+        - Profile
       summary: Ambil Profil Pengguna
       description: Endpoint untuk mengambil data profil pengguna yang sudah terautentikasi.
       security:
@@ -140,6 +146,8 @@ paths:
                     type: string
                     example: Unauthorized access.
     patch:
+      tags:
+        - Profile
       summary: Perbarui Profil Pengguna
       description: Endpoint untuk memperbarui data profil pengguna yang sudah terautentikasi.
       security:
@@ -196,6 +204,302 @@ paths:
                   message:
                     type: string
                     example: Unauthorized access."
+  /buildings:
+    get:
+      tags:
+        - Buildings
+      summary: Daftar Gedung
+      description: Endpoint untuk mengambil daftar gedung yang ada di kampus.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Berhasil mengambil daftar gedung.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  buildings:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Building"
+        "401":
+          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Unauthorized access.
+    "post":
+      tags:
+        - Buildings
+      summary: Tambah Gedung Baru
+      description: Endpoint untuk menambahkan gedung baru ke dalam sistem.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Gedung A
+                abbreviation:
+                  type: string
+                  example: H
+                floors:
+                  type: integer
+                  example: 4
+                build_year:
+                  type: integer
+                  example: 2010
+                type:
+                  type: string
+                  example: Gedung Kuliah Bersama
+      responses:
+        "201":
+          description: Gedung berhasil ditambahkan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Building added successfully.
+                  building:
+                    $ref: "#/components/schemas/Building"
+        "400":
+          description: Permintaan tidak valid. Data yang diberikan tidak lengkap atau salah.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Invalid input data.
+  /buildings/{building_id}:
+    get:
+      tags:
+        - Buildings
+      summary: Detail Gedung
+      description: Endpoint untuk mengambil detail gedung berdasarkan ID gedung.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: building_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID dari gedung yang ingin diambil detailnya.
+      responses:
+        "200":
+          description: Berhasil mengambil detail gedung.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  building:
+                    $ref: "#/components/schemas/Building"
+        "404":
+          description: Gedung tidak ditemukan dengan ID yang diberikan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Building not found.
+        "401":
+          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Unauthorized access."
+    "patch":
+      tags:
+        - Buildings
+      summary: Perbarui Detail Gedung
+      description: Endpoint untuk memperbarui detail gedung berdasarkan ID gedung.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: building_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID dari gedung yang ingin diperbarui.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Gedung A
+                abbreviation:
+                  type: string
+                  example: H
+                floors:
+                  type: integer
+                  example: 4
+                build_year:
+                  type: integer
+                  example: 2010
+                type:
+                  type: string
+                  example: Gedung Kuliah Bersama
+      responses:
+        "200":
+          description: Berhasil memperbarui detail gedung.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Building updated successfully.
+                  building:
+                    $ref: "#/components/schemas/Building"
+        "400":
+          description: Permintaan tidak valid. Data yang diberikan tidak lengkap atau salah.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Invalid input data.
+        "404":
+          description: Gedung tidak ditemukan dengan ID yang diberikan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Building not found.
+        "401":
+          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Unauthorized access."
+    "delete":
+      tags:
+        - Buildings
+      summary: Hapus Gedung
+      description: Endpoint untuk menghapus gedung berdasarkan ID gedung.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: building_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID dari gedung yang ingin dihapus.
+      responses:
+        "200":
+          description: Berhasil menghapus gedung.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Building deleted successfully.
+        "404":
+          description: Gedung tidak ditemukan dengan ID yang diberikan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Building not found.
+        "401":
+          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Unauthorized access."
+tags:
+  - name: Authentication
+    description: Endpoint untuk registrasi, login, dan manajemen profil pengguna.
+  - name: Profile
+    description: Endpoint untuk mengambil dan memperbarui data profil pengguna.
+  - name: Buildings
+    description: Endpoint untuk manajemen data gedung di kampus.
+  - name: Rooms
+    description: Endpoint untuk manajemen data ruangan di gedung kampus.
 
 components:
   schemas:
@@ -211,6 +515,70 @@ components:
         email:
           type: string
           example: user123@example.com
+
+    Building:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        name:
+          type: string
+          example: Gedung A
+        abbreviation:
+          type: string
+          example: H
+        floors:
+          type: integer
+          example: 4
+        build_year:
+          type: integer
+          example: 2010
+        type:
+          type: string
+          example: Gedung Kuliah Bersama
+    Room:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 101
+        building_id:
+          type: integer
+          example: 10
+        name:
+          type: string
+          example: H1.1
+        abbreviation:
+          type: string
+          example: H1.1
+        floor:
+          type: integer
+          example: 1
+        number:
+          type: string
+          example: 10
+        capacity:
+          type: integer
+          example: 40
+        size:
+          type: integer
+          example: 60
+        location:
+          type: string
+          example: Lantai 1, Gedung H
+        public:
+          type: integer
+          example:
+        status:
+          type: integer
+          example: 1
+        availability:
+          type: integer
+          example: 1
+        type:
+          type: string
+          example: Kelas
   securitySchemes:
     bearerAuth:
       type: http
