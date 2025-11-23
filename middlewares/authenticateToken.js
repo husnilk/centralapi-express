@@ -9,7 +9,10 @@ function authenticateToken(req, res, next) {
   jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
     console.log(err);
 
-    if (err) return res.sendStatus(403);
+    if (err)
+      return res
+        .status(403)
+        .json({ status: "failed", message: "Unauthorized" });
 
     req.user = user;
 
