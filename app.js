@@ -7,6 +7,10 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var authRouter = require("./routes/auth");
 var profileRouter = require("./routes/profile");
+var buildingRouter = require("./routes/building");
+var roomRouter = require("./routes/room");
+var facultyRouter = require("./routes/faculty");
+var departmentRouter = require("./routes/department");
 
 var app = express();
 
@@ -20,5 +24,9 @@ app.use("/", indexRouter);
 app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
 app.use("/users", usersRouter);
+app.use("/building", buildingRouter);
+app.use("/room", roomRouter);
+app.use("/faculty", facultyRouter);
+app.use("/department", departmentRouter);
 
 module.exports = app;
