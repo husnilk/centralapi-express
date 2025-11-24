@@ -83,3 +83,73 @@ model Room {
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 }
+
+model Lecturer {
+  id               Int      @id @default(autoincrement())
+  nik              String
+  name             String
+  nip              String?
+  nidn             String?
+  karpeg           String?
+  npwp             String?
+  gender           String?
+  birthday         DateTime?
+  birthplace       String?
+  phone            String?
+  address          String?
+  department_id    Int
+  department       Department @relation(fields: [department_id], references: [id])
+  photo            String?
+  marital_status   String?
+  religion         String?
+  association_type String?
+  status           Int      @default(1)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+}
+
+model Staff {
+  id               Int      @id @default(autoincrement())
+  nik              String
+  name             String
+  nip              String?
+  karpeg           String?
+  npwp             String?
+  gender           String?
+  birthday         DateTime?
+  birthplace       String?
+  phone            String?
+  address          String?
+  department_id    Int
+  department       Department @relation(fields: [department_id], references: [id])
+  photo            String?
+  marital_status   String?
+  religion         String?
+  association_type String?
+  status           Int      @default(1)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+}
+
+model Student {
+  id             Int       @id @default(autoincrement())
+  nik            String
+  nim            String   @unique
+  name           String
+  year           Int
+  gender         String?
+  birthday       DateTime?
+  birthplace     String?
+  phone          String?
+  address        String?
+  department_id  Int
+  department     Department @relation(fields: [department_id], references: [id])
+  photo          String?
+  marital_status String?
+  religion       String?
+  status         Int      @default(1)
+  counselor_id   Int?
+  counselor      Lecturer? @relation("StudentCounselor", fields: [counselor_id], references: [id])
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+}
