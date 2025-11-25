@@ -11,6 +11,9 @@ var buildingRouter = require("./routes/building");
 var roomRouter = require("./routes/room");
 var facultyRouter = require("./routes/faculty");
 var departmentRouter = require("./routes/department");
+var staffRouter = require("./routes/staff");
+var lecturerRouter = require("./routes/lecturer");
+var studentRouter = require("./routes/student");
 
 var app = express();
 
@@ -28,5 +31,8 @@ app.use("/building", buildingRouter);
 app.use("/room", roomRouter);
 app.use("/faculty", facultyRouter);
 app.use("/department", departmentRouter);
+app.use("/staff", staffRouter);
+app.use("/lecturer", lecturerRouter);
+app.use("/student", studentRouter);
 
 module.exports = app;

@@ -1,4 +1,5 @@
 const { PrismaClient } = require("../generated/prisma");
+const { validationResult } = require("express-validator");
 const prisma = new PrismaClient();
 
 const listUser = async (req, res, next) => {
@@ -17,6 +18,12 @@ const listUser = async (req, res, next) => {
 };
 
 const addUser = async (req, res, next) => {
+  // check validation results (also handled by route middleware)
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ status: "error", errors: errors.array() });
+  }
+
   const { name, email, password } = req.body;
   try {
     const user = await prisma.user.create({
@@ -35,6 +42,13 @@ const addUser = async (req, res, next) => {
 
 const editUser = async (req, res, next) => {
   const { id } = req.params;
+
+  // check validation results
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ status: "error", errors: errors.array() });
+  }
+
   const { name, email, password } = req.body;
   try {
     const user = await prisma.user.update({
@@ -50,6 +64,12 @@ const editUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   const { id } = req.params;
+
+  // check validation results
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ status: "error", errors: errors.array() });
+  }
   try {
     await prisma.user.delete({
       where: { id: parseInt(id) },

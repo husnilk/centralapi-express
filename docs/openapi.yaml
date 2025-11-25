@@ -500,6 +500,16 @@ tags:
     description: Endpoint untuk manajemen data gedung di kampus.
   - name: Rooms
     description: Endpoint untuk manajemen data ruangan di gedung kampus.
+  - name: Faculties
+    description: Endpoint untuk manajemen data fakultas di universitas.
+  - name: Departments
+    description: Endpoint untuk manajemen data jurusan di fakultas.
+  - name: Staff
+    description: Endpoint untuk manajemen data staf di universitas.
+  - name: Lecturers
+    description: Endpoint untuk manajemen data dosen di universitas.
+  - name: Students
+    description: Endpoint untuk manajemen data mahasiswa di universitas.
 
 components:
   schemas:
@@ -579,6 +589,79 @@ components:
         type:
           type: string
           example: Kelas
+    Faculty:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 5
+        name:
+          type: string
+          example: Fakultas Teknologi Informasi
+        abbreviation:
+          type: string
+          example: FTI
+    Department:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 15
+        faculty_id:
+          type: integer
+          example: 5
+        name:
+          type: string
+          example: Teknik Informatika
+        abbreviation:
+          type: string
+          example: TI
+    Staff:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1001
+        name:
+          type: string
+          example: Budi Santoso
+        position:
+          type: string
+          example: Administrator
+        email:
+          type: string
+          example: admin123@server.com
+    Lecturer:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2001
+        name:
+          type: string
+          example: Dr. Siti Aminah
+        department_id:
+          type: integer
+          example: 15
+        email:
+          type: string
+          example: admin123@server.com
+    Student:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 300
+        name:
+          type: string
+          example: Andi Wijaya
+        department_id:
+          type: integer
+          example: 15
+        email:
+          type: string
+          example: admin123@email.com
+
   securitySchemes:
     bearerAuth:
       type: http
