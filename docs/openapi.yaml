@@ -491,6 +491,335 @@ paths:
                   message:
                     type: string
                     example: Unauthorized access."
+  "/rooms":
+    get:
+      tags:
+        - Rooms
+      summary: Daftar Ruangan
+      description: Endpoint untuk mengambil daftar ruangan yang ada di kampus.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Berhasil mengambil daftar ruangan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rooms:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Room"
+        "401":
+          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Unauthorized access.
+    "post":
+      tags:
+        - Rooms
+      summary: Tambah Ruangan Baru
+      description: Endpoint untuk menambahkan ruangan baru ke dalam sistem.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: H1.1
+                abbreviation:
+                  type: string
+                  example: H1.1"
+                floor:
+                  type: integer
+                  example: 1
+                number:
+                  type: string
+                  example: 10
+                capacity:
+                  type: integer
+                  example: 40
+                size:
+                  type: integer
+                  example: 60
+                location:
+                  type: string
+                  example: Lantai 1, Gedung H
+                public:
+                  type: integer
+                  example: 1
+                status:
+                  type: integer
+                  example: 1
+                availability:
+                  type: integer
+                  example: 1
+                type:
+                  type: string
+                  example: Kelas
+                building_id:
+                  type: integer
+                  example: 10
+      responses:
+        "201":
+          description: Ruangan berhasil ditambahkan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Room added successfully.
+                  room:
+                    $ref: "#/components/schemas/Room"
+        "400":
+          description: Permintaan tidak valid. Data yang diberikan tidak lengkap atau salah.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Invalid input data.
+  /rooms/{room_id}:
+    get:
+      tags:
+        - Rooms
+      summary: Detail Ruangan
+      description: Endpoint untuk mengambil detail ruangan berdasarkan ID ruangan.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: room_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID dari ruangan yang ingin diambil detailnya.
+      responses:
+        "200":
+          description: Berhasil mengambil detail ruangan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  room:
+                    $ref: "#/components/schemas/Room"
+        "404":
+          description: Ruangan tidak ditemukan dengan ID yang diberikan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Room not found.
+        "401":
+          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Unauthorized access."
+    "patch":
+      tags:
+        - Rooms
+      summary: Perbarui Detail Ruangan
+      description: Endpoint untuk memperbarui detail ruangan berdasarkan ID ruangan.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: room_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID dari ruangan yang ingin diperbarui.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: H1.1
+                abbreviation:
+                  type: string
+                  example: H1.1"
+                floor:
+                  type: integer
+                  example: 1
+                number:
+                  type: string
+                  example: 10
+                capacity:
+                  type: integer
+                  example: 40
+                size:
+                  type: integer
+                  example: 60
+                location:
+                  type: string
+                  example: Lantai 1, Gedung H
+                public:
+                  type: integer
+                  example: 1
+                status:
+                  type: integer
+                  example: 1
+                availability:
+                  type: integer
+                  example: 1
+                type:
+                  type: string
+                  example: Kelas
+                building_id:
+                  type: integer
+                  example: 10
+      responses:
+        "200":
+          description: Berhasil memperbarui detail ruangan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Room updated successfully.
+                  room:
+                    $ref: "#/components/schemas/Room"
+        "400":
+          description: Permintaan tidak valid. Data yang diberikan tidak lengkap atau salah.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Invalid input data.
+        "404":
+          description: Ruangan tidak ditemukan dengan ID yang diberikan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Room not found.
+        "401":
+          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Unauthorized access."
+    "delete":
+      tags:
+        - Rooms
+      summary: Hapus Ruangan
+      description: Endpoint untuk menghapus ruangan berdasarkan ID ruangan.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: room_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID dari ruangan yang ingin dihapus.
+      responses:
+        "200":
+          description: Berhasil menghapus ruangan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Room deleted successfully.
+        "404":
+          description: Ruangan tidak ditemukan dengan ID yang diberikan.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Room not found.
+        "401":
+          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: Unauthorized access."
 tags:
   - name: Authentication
     description: Endpoint untuk registrasi, login, dan manajemen profil pengguna.
@@ -547,15 +876,20 @@ components:
         type:
           type: string
           example: Gedung Kuliah Bersama
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-01-15T08:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-06-20T10:30:00Z"
     Room:
       type: object
       properties:
         id:
           type: integer
           example: 101
-        building_id:
-          type: integer
-          example: 10
         name:
           type: string
           example: H1.1
@@ -589,6 +923,17 @@ components:
         type:
           type: string
           example: Kelas
+        building_id:
+          type: integer
+          example: 10
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-01-15T08:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-06-20T10:30:00Z"
     Faculty:
       type: object
       properties:
@@ -601,21 +946,49 @@ components:
         abbreviation:
           type: string
           example: FTI
+        type:
+          type: string
+          example: Fakultas
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-01-15T08:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-06-20T10:30:00Z"
     Department:
       type: object
       properties:
         id:
           type: integer
           example: 15
-        faculty_id:
-          type: integer
-          example: 5
         name:
           type: string
           example: Teknik Informatika
         abbreviation:
           type: string
           example: TI
+        name_en:
+          type: string
+          example: Informatics Engineering
+        abbreviation_en:
+          type: string
+          example: IE
+        national_code:
+          type: string
+          example: 12345
+        faculty_id:
+          type: integer
+          example: 5
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-01-15T08:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-06-20T10:30:00Z"
     Staff:
       type: object
       properties:
@@ -625,43 +998,153 @@ components:
         name:
           type: string
           example: Budi Santoso
-        position:
+        nik:
           type: string
-          example: Administrator
-        email:
+          example: 3172012345678901
+        nip:
           type: string
-          example: admin123@server.com
+          example: 1987654321
+        karpeg:
+          type: string
+          example: 1234567890
+        npwp:
+          type: string
+          example: 09.123.456.7-890.000
+        gender:
+          type: string
+          example: L
+        birthday:
+          type: string
+          format: date
+          example: 1980-05-15
+        birthplace:
+          type: string
+          example: Jakarta
+        phone:
+          type: string
+          example: +6281234567890
+        address:
+          type: string
+          example: Jl. Merdeka No. 10, Jakarta
+        department_id:
+          type: integer
+          example: 15
+        marital_status:
+          type: string
+          example: Married
+        religion:
+          type: string
+          example: Islam
+        employment_status:
+          type: string
+          example: Permanent
+        status:
+          type: integer
+          example: 1
     Lecturer:
       type: object
       properties:
         id:
           type: integer
-          example: 2001
+          example: 1001
         name:
           type: string
-          example: Dr. Siti Aminah
+          example: Budi Santoso
+        nik:
+          type: string
+          example: 3172012345678901
+        nip:
+          type: string
+          example: 1987654321
+        nidn:
+          type: string
+          example: 0012345601
+        karpeg:
+          type: string
+          example: 1234567890
+        npwp:
+          type: string
+          example: 09.123.456.7-890.000
+        gender:
+          type: string
+          example: L
+        birthday:
+          type: string
+          format: date
+          example: 1980-05-15
+        birthplace:
+          type: string
+          example: Jakarta
+        phone:
+          type: string
+          example: +6281234567890
+        address:
+          type: string
+          example: Jl. Merdeka No. 10, Jakarta
         department_id:
           type: integer
           example: 15
-        email:
+        marital_status:
           type: string
-          example: admin123@server.com
+          example: Married
+        religion:
+          type: string
+          example: Islam
+        employment_status:
+          type: string
+          example: Permanent
+        status:
+          type: integer
+          example: 1
     Student:
       type: object
       properties:
         id:
           type: integer
-          example: 300
+          example: 1001
         name:
           type: string
-          example: Andi Wijaya
+          example: Budi Santoso
+        nik:
+          type: string
+          example: 3172012345678901
+        nim:
+          type: string
+          example: 1987654321
+        year:
+          type: integer
+          example: 2000
+        gender:
+          type: string
+          example: L
+        birthday:
+          type: string
+          format: date
+          example: 1980-05-15
+        birthplace:
+          type: string
+          example: Jakarta
+        phone:
+          type: string
+          example: +6281234567890
+        address:
+          type: string
+          example: Jl. Merdeka No. 10, Jakarta
         department_id:
           type: integer
           example: 15
-        email:
+        marital_status:
           type: string
-          example: admin123@email.com
-
+          example: Married
+        religion:
+          type: string
+          example: Islam
+        status:
+          type: integer
+          example: 1
+        counselor_id:
+          type: integer
+          example: 2001
   securitySchemes:
     bearerAuth:
       type: http
