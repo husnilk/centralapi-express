@@ -17,6 +17,28 @@ servers:
     description: Production Server
   - url: https://sandbox-api.fti.unand.ac.id/
     description: Sandbox Server
+tags:
+  - name: Authentication
+    description: Endpoint untuk registrasi, login, dan manajemen profil pengguna.
+  - name: Profile
+    description: Endpoint untuk mengambil dan memperbarui data profil pengguna.
+  - name: Users
+    description: Endpoint untuk manajemen data pengguna.
+  - name: Buildings
+    description: Endpoint untuk manajemen data gedung di kampus.
+  - name: Rooms
+    description: Endpoint untuk manajemen data ruangan di gedung kampus.
+  - name: Faculties
+    description: Endpoint untuk manajemen data fakultas di universitas.
+  - name: Departments
+    description: Endpoint untuk manajemen data jurusan di fakultas.
+  - name: Staff
+    description: Endpoint untuk manajemen data staf di universitas.
+  - name: Lecturers
+    description: Endpoint untuk manajemen data dosen di universitas.
+  - name: Students
+    description: Endpoint untuk manajemen data mahasiswa di universitas.
+
 paths:
   /auth/register:
     post:
@@ -30,6 +52,10 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - username
+                - email
+                - password
               properties:
                 username:
                   type: string
@@ -55,17 +81,7 @@ paths:
                     $ref: "#/components/schemas/User"
         "400":
           description: Permintaan tidak valid. Data yang diberikan tidak lengkap atau salah.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Invalid input data.
+
   /auth/login:
     post:
       tags:
@@ -78,6 +94,9 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - username
+                - password
               properties:
                 username:
                   type: string
@@ -103,17 +122,7 @@ paths:
                     $ref: "#/components/schemas/User"
         "401":
           description: Gagal autentikasi. Username atau password salah.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Invalid username or password.
+
   /profile:
     get:
       tags:
@@ -128,23 +137,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  user:
-                    $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/User"
         "401":
-          description: Gagal autentikasi. Token akses tidak valid atau habis masa berlakunya.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Unauthorized access.
+          description: Unauthorized.
     patch:
       tags:
         - Profile
@@ -171,45 +166,103 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Profile updated successfully.
-                  user:
-                    $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/User"
         "400":
-          description: Permintaan tidak valid. Data yang diberikan tidak lengkap atau salah.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Invalid input data.
+          description: Permintaan tidak valid.
         "401":
-          description: Gagal autentikasi. Token akses tidak valid atau habis masa berlakunya.
+          description: Unauthorized.
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Daftar semua pengguna
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Sukses mengambil daftar pengguna
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Unauthorized access."
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      tags:
+        - Users
+      summary: Tambah pengguna baru
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "201":
+          description: Pengguna berhasil dibuat
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Input tidak valid
+
+  /users/{id}:
+    put:
+      tags:
+        - Users
+      summary: Perbarui pengguna
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "200":
+          description: Pengguna berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Input tidak valid
+        "404":
+          description: Pengguna tidak ditemukan
+    delete:
+      tags:
+        - Users
+      summary: Hapus pengguna
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Pengguna berhasil dihapus
+        "404":
+          description: Pengguna tidak ditemukan
+
   /buildings:
     get:
       tags:
         - Buildings
       summary: Daftar Gedung
-      description: Endpoint untuk mengambil daftar gedung yang ada di kampus.
       security:
         - bearerAuth: []
       responses:
@@ -218,30 +271,15 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  buildings:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Building"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Building"
         "401":
-          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Unauthorized access.
-    "post":
+          description: Unauthorized.
+    post:
       tags:
         - Buildings
       summary: Tambah Gedung Baru
-      description: Endpoint untuk menambahkan gedung baru ke dalam sistem.
       security:
         - bearerAuth: []
       requestBody:
@@ -249,254 +287,91 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: Gedung A
-                abbreviation:
-                  type: string
-                  example: H
-                floors:
-                  type: integer
-                  example: 4
-                build_year:
-                  type: integer
-                  example: 2010
-                type:
-                  type: string
-                  example: Gedung Kuliah Bersama
+              $ref: "#/components/schemas/BuildingInput"
       responses:
         "201":
           description: Gedung berhasil ditambahkan.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Building added successfully.
-                  building:
-                    $ref: "#/components/schemas/Building"
+                $ref: "#/components/schemas/Building"
         "400":
-          description: Permintaan tidak valid. Data yang diberikan tidak lengkap atau salah.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Invalid input data.
-  /buildings/{building_id}:
+          description: Permintaan tidak valid.
+
+  /buildings/{id}:
     get:
       tags:
         - Buildings
       summary: Detail Gedung
-      description: Endpoint untuk mengambil detail gedung berdasarkan ID gedung.
       security:
         - bearerAuth: []
       parameters:
-        - name: building_id
+        - name: id
           in: path
           required: true
           schema:
             type: integer
-          description: ID dari gedung yang ingin diambil detailnya.
       responses:
         "200":
           description: Berhasil mengambil detail gedung.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  building:
-                    $ref: "#/components/schemas/Building"
+                $ref: "#/components/schemas/Building"
         "404":
-          description: Gedung tidak ditemukan dengan ID yang diberikan.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Building not found.
-        "401":
-          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Unauthorized access."
-    "patch":
+          description: Gedung tidak ditemukan.
+    patch:
       tags:
         - Buildings
       summary: Perbarui Detail Gedung
-      description: Endpoint untuk memperbarui detail gedung berdasarkan ID gedung.
       security:
         - bearerAuth: []
       parameters:
-        - name: building_id
+        - name: id
           in: path
           required: true
           schema:
             type: integer
-          description: ID dari gedung yang ingin diperbarui.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: Gedung A
-                abbreviation:
-                  type: string
-                  example: H
-                floors:
-                  type: integer
-                  example: 4
-                build_year:
-                  type: integer
-                  example: 2010
-                type:
-                  type: string
-                  example: Gedung Kuliah Bersama
+              $ref: "#/components/schemas/BuildingInput"
       responses:
         "200":
           description: Berhasil memperbarui detail gedung.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Building updated successfully.
-                  building:
-                    $ref: "#/components/schemas/Building"
+                $ref: "#/components/schemas/Building"
         "400":
-          description: Permintaan tidak valid. Data yang diberikan tidak lengkap atau salah.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Invalid input data.
+          description: Permintaan tidak valid.
         "404":
-          description: Gedung tidak ditemukan dengan ID yang diberikan.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Building not found.
-        "401":
-          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Unauthorized access."
-    "delete":
+          description: Gedung tidak ditemukan.
+    delete:
       tags:
         - Buildings
       summary: Hapus Gedung
-      description: Endpoint untuk menghapus gedung berdasarkan ID gedung.
       security:
         - bearerAuth: []
       parameters:
-        - name: building_id
+        - name: id
           in: path
           required: true
           schema:
             type: integer
-          description: ID dari gedung yang ingin dihapus.
       responses:
         "200":
           description: Berhasil menghapus gedung.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Building deleted successfully.
         "404":
-          description: Gedung tidak ditemukan dengan ID yang diberikan.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Building not found.
-        "401":
-          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Unauthorized access."
-  "/rooms":
+          description: Gedung tidak ditemukan.
+
+  /rooms:
     get:
       tags:
         - Rooms
       summary: Daftar Ruangan
-      description: Endpoint untuk mengambil daftar ruangan yang ada di kampus.
       security:
         - bearerAuth: []
       responses:
@@ -505,30 +380,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  rooms:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Room"
-        "401":
-          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Unauthorized access.
-    "post":
+                type: array
+                items:
+                  $ref: "#/components/schemas/Room"
+    post:
       tags:
         - Rooms
       summary: Tambah Ruangan Baru
-      description: Endpoint untuk menambahkan ruangan baru ke dalam sistem.
       security:
         - bearerAuth: []
       requestBody:
@@ -536,615 +394,642 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: H1.1
-                abbreviation:
-                  type: string
-                  example: H1.1"
-                floor:
-                  type: integer
-                  example: 1
-                number:
-                  type: string
-                  example: 10
-                capacity:
-                  type: integer
-                  example: 40
-                size:
-                  type: integer
-                  example: 60
-                location:
-                  type: string
-                  example: Lantai 1, Gedung H
-                public:
-                  type: integer
-                  example: 1
-                status:
-                  type: integer
-                  example: 1
-                availability:
-                  type: integer
-                  example: 1
-                type:
-                  type: string
-                  example: Kelas
-                building_id:
-                  type: integer
-                  example: 10
+              $ref: "#/components/schemas/RoomInput"
       responses:
         "201":
           description: Ruangan berhasil ditambahkan.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Room added successfully.
-                  room:
-                    $ref: "#/components/schemas/Room"
+                $ref: "#/components/schemas/Room"
         "400":
-          description: Permintaan tidak valid. Data yang diberikan tidak lengkap atau salah.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Invalid input data.
-  /rooms/{room_id}:
+          description: Permintaan tidak valid.
+
+  /rooms/{id}:
     get:
       tags:
         - Rooms
       summary: Detail Ruangan
-      description: Endpoint untuk mengambil detail ruangan berdasarkan ID ruangan.
       security:
         - bearerAuth: []
       parameters:
-        - name: room_id
+        - name: id
           in: path
           required: true
           schema:
             type: integer
-          description: ID dari ruangan yang ingin diambil detailnya.
       responses:
         "200":
           description: Berhasil mengambil detail ruangan.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  room:
-                    $ref: "#/components/schemas/Room"
+                $ref: "#/components/schemas/Room"
         "404":
-          description: Ruangan tidak ditemukan dengan ID yang diberikan.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Room not found.
-        "401":
-          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Unauthorized access."
-    "patch":
+          description: Ruangan tidak ditemukan.
+    patch:
       tags:
         - Rooms
       summary: Perbarui Detail Ruangan
-      description: Endpoint untuk memperbarui detail ruangan berdasarkan ID ruangan.
       security:
         - bearerAuth: []
       parameters:
-        - name: room_id
+        - name: id
           in: path
           required: true
           schema:
             type: integer
-          description: ID dari ruangan yang ingin diperbarui.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: H1.1
-                abbreviation:
-                  type: string
-                  example: H1.1"
-                floor:
-                  type: integer
-                  example: 1
-                number:
-                  type: string
-                  example: 10
-                capacity:
-                  type: integer
-                  example: 40
-                size:
-                  type: integer
-                  example: 60
-                location:
-                  type: string
-                  example: Lantai 1, Gedung H
-                public:
-                  type: integer
-                  example: 1
-                status:
-                  type: integer
-                  example: 1
-                availability:
-                  type: integer
-                  example: 1
-                type:
-                  type: string
-                  example: Kelas
-                building_id:
-                  type: integer
-                  example: 10
+              $ref: "#/components/schemas/RoomInput"
       responses:
         "200":
           description: Berhasil memperbarui detail ruangan.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Room updated successfully.
-                  room:
-                    $ref: "#/components/schemas/Room"
+                $ref: "#/components/schemas/Room"
         "400":
-          description: Permintaan tidak valid. Data yang diberikan tidak lengkap atau salah.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Invalid input data.
+          description: Permintaan tidak valid.
         "404":
-          description: Ruangan tidak ditemukan dengan ID yang diberikan.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Room not found.
-        "401":
-          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Unauthorized access."
-    "delete":
+          description: Ruangan tidak ditemukan.
+    delete:
       tags:
         - Rooms
       summary: Hapus Ruangan
-      description: Endpoint untuk menghapus ruangan berdasarkan ID ruangan.
       security:
         - bearerAuth: []
       parameters:
-        - name: room_id
+        - name: id
           in: path
           required: true
           schema:
             type: integer
-          description: ID dari ruangan yang ingin dihapus.
       responses:
         "200":
           description: Berhasil menghapus ruangan.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  message:
-                    type: string
-                    example: Room deleted successfully.
         "404":
-          description: Ruangan tidak ditemukan dengan ID yang diberikan.
+          description: Ruangan tidak ditemukan.
+
+  /faculties:
+    get:
+      tags:
+        - Faculties
+      summary: Daftar semua fakultas
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Sukses
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Room not found.
-        "401":
-          description: Gagal autentikasi. API token tidak valid atau habis masa berlakunya.
+                type: array
+                items:
+                  $ref: "#/components/schemas/Faculty"
+    post:
+      tags:
+        - Faculties
+      summary: Tambah fakultas baru
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FacultyInput"
+      responses:
+        "201":
+          description: Fakultas berhasil dibuat
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: error
-                  message:
-                    type: string
-                    example: Unauthorized access."
-tags:
-  - name: Authentication
-    description: Endpoint untuk registrasi, login, dan manajemen profil pengguna.
-  - name: Profile
-    description: Endpoint untuk mengambil dan memperbarui data profil pengguna.
-  - name: Buildings
-    description: Endpoint untuk manajemen data gedung di kampus.
-  - name: Rooms
-    description: Endpoint untuk manajemen data ruangan di gedung kampus.
-  - name: Faculties
-    description: Endpoint untuk manajemen data fakultas di universitas.
-  - name: Departments
-    description: Endpoint untuk manajemen data jurusan di fakultas.
-  - name: Staff
-    description: Endpoint untuk manajemen data staf di universitas.
-  - name: Lecturers
-    description: Endpoint untuk manajemen data dosen di universitas.
-  - name: Students
-    description: Endpoint untuk manajemen data mahasiswa di universitas.
+                $ref: "#/components/schemas/Faculty"
+
+  /faculties/{id}:
+    get:
+      tags:
+        - Faculties
+      summary: Ambil fakultas berdasarkan ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sukses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Faculty"
+        "404":
+          description: Fakultas tidak ditemukan
+    put:
+      tags:
+        - Faculties
+      summary: Perbarui fakultas
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FacultyInput"
+      responses:
+        "200":
+          description: Fakultas berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Faculty"
+        "404":
+          description: Fakultas tidak ditemukan
+    delete:
+      tags:
+        - Faculties
+      summary: Hapus fakultas
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Fakultas berhasil dihapus
+        "404":
+          description: Fakultas tidak ditemukan
+
+  /departments:
+    get:
+      tags:
+        - Departments
+      summary: Daftar semua jurusan
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Sukses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Department"
+    post:
+      tags:
+        - Departments
+      summary: Tambah jurusan baru
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DepartmentInput"
+      responses:
+        "201":
+          description: Jurusan berhasil dibuat
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Department"
+
+  /departments/{id}:
+    get:
+      tags:
+        - Departments
+      summary: Ambil jurusan berdasarkan ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sukses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Department"
+        "404":
+          description: Jurusan tidak ditemukan
+    put:
+      tags:
+        - Departments
+      summary: Perbarui jurusan
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DepartmentInput"
+      responses:
+        "200":
+          description: Jurusan berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Department"
+        "404":
+          description: Jurusan tidak ditemukan
+    delete:
+      tags:
+        - Departments
+      summary: Hapus jurusan
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Jurusan berhasil dihapus
+        "404":
+          description: Jurusan tidak ditemukan
+
+  /faculties/{facultyId}/departments:
+    get:
+      tags:
+        - Departments
+      summary: Ambil daftar jurusan dari fakultas tertentu
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: facultyId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sukses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Department"
+        "404":
+          description: Fakultas tidak ditemukan
+
+  /lecturers:
+    get:
+      tags:
+        - Lecturers
+      security:
+        - bearerAuth:
+      summary: Daftar semua dosen
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      responses:
+        "200":
+          description: Sukses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Lecturer"
+    post:
+      tags:
+        - Lecturers
+      security:
+        - bearerAuth: []
+      summary: Tambah dosen baru
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LecturerInput"
+      responses:
+        "201":
+          description: Dosen berhasil dibuat
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lecturer"
+
+  /lecturers/{id}:
+    get:
+      tags:
+        - Lecturers
+      security:
+        - bearerAuth: []
+      summary: Ambil dosen berdasarkan ID
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sukses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lecturer"
+        "404":
+          description: Dosen tidak ditemukan
+    patch:
+      tags:
+        - Lecturers
+      security:
+        - bearerAuth: []
+      summary: Perbarui dosen
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LecturerInput"
+      responses:
+        "200":
+          description: Dosen berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lecturer"
+        "404":
+          description: Dosen tidak ditemukan
+    delete:
+      tags:
+        - Lecturers
+      security:
+        - bearerAuth: []
+      summary: Hapus dosen
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Dosen berhasil dihapus
+        "404":
+          description: Dosen tidak ditemukan
+
+  /staff:
+    get:
+      tags:
+        - Staff
+      security:
+        - bearerAuth: []
+      summary: Daftar semua staff
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      responses:
+        "200":
+          description: Sukses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Staff"
+    post:
+      tags:
+        - Staff
+      security:
+        - bearerAuth: []
+      summary: Tambah staff baru
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffInput"
+      responses:
+        "201":
+          description: Staff berhasil dibuat
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Staff"
+
+  /staff/{id}:
+    get:
+      tags:
+        - Staff
+      security:
+        - bearerAuth: []
+      summary: Ambil staff berdasarkan ID
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sukses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Staff"
+        "404":
+          description: Staff tidak ditemukan
+    put:
+      tags:
+        - Staff
+      security:
+        - bearerAuth: []
+      summary: Perbarui staff
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StaffInput"
+      responses:
+        "200":
+          description: Staff berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Staff"
+        "404":
+          description: Staff tidak ditemukan
+    delete:
+      tags:
+        - Staff
+      security:
+        - bearerAuth: []
+      summary: Hapus staff
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Staff berhasil dihapus
+        "404":
+          description: Staff tidak ditemukan
+
+  /students:
+    get:
+      tags:
+        - Students
+      security:
+        - bearerAuth: []
+      summary: Daftar semua mahasiswa
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      responses:
+        "200":
+          description: Sukses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Student"
+    post:
+      tags:
+        - Students
+      security:
+        - bearerAuth: []
+      summary: Tambah mahasiswa baru
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentInput"
+      responses:
+        "201":
+          description: Mahasiswa berhasil dibuat
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+
+  /students/{id}:
+    get:
+      tags:
+        - Students
+      security:
+        - bearerAuth: []
+      summary: Ambil mahasiswa berdasarkan ID
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sukses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        "404":
+          description: Mahasiswa tidak ditemukan
+    patch:
+      tags:
+        - Students
+      security:
+        - bearerAuth: []
+      summary: Perbarui mahasiswa
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentInput"
+      responses:
+        "200":
+          description: Mahasiswa berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        "404":
+          description: Mahasiswa tidak ditemukan
+    delete:
+      tags:
+        - Students
+      security:
+        - bearerAuth: []
+      summary: Hapus mahasiswa
+      description: "Peringatan: Endpoint ini tidak terautentikasi."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Mahasiswa berhasil dihapus
+        "404":
+          description: Mahasiswa tidak ditemukan
 
 components:
-  schemas:
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        username:
-          type: string
-          example: user123
-        email:
-          type: string
-          example: user123@example.com
-
-    Building:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 10
-        name:
-          type: string
-          example: Gedung A
-        abbreviation:
-          type: string
-          example: H
-        floors:
-          type: integer
-          example: 4
-        build_year:
-          type: integer
-          example: 2010
-        type:
-          type: string
-          example: Gedung Kuliah Bersama
-        created_at:
-          type: string
-          format: date-time
-          example: "2023-01-15T08:00:00Z"
-        updated_at:
-          type: string
-          format: date-time
-          example: "2023-06-20T10:30:00Z"
-    Room:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 101
-        name:
-          type: string
-          example: H1.1
-        abbreviation:
-          type: string
-          example: H1.1
-        floor:
-          type: integer
-          example: 1
-        number:
-          type: string
-          example: 10
-        capacity:
-          type: integer
-          example: 40
-        size:
-          type: integer
-          example: 60
-        location:
-          type: string
-          example: Lantai 1, Gedung H
-        public:
-          type: integer
-          example:
-        status:
-          type: integer
-          example: 1
-        availability:
-          type: integer
-          example: 1
-        type:
-          type: string
-          example: Kelas
-        building_id:
-          type: integer
-          example: 10
-        created_at:
-          type: string
-          format: date-time
-          example: "2023-01-15T08:00:00Z"
-        updated_at:
-          type: string
-          format: date-time
-          example: "2023-06-20T10:30:00Z"
-    Faculty:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 5
-        name:
-          type: string
-          example: Fakultas Teknologi Informasi
-        abbreviation:
-          type: string
-          example: FTI
-        type:
-          type: string
-          example: Fakultas
-        created_at:
-          type: string
-          format: date-time
-          example: "2023-01-15T08:00:00Z"
-        updated_at:
-          type: string
-          format: date-time
-          example: "2023-06-20T10:30:00Z"
-    Department:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 15
-        name:
-          type: string
-          example: Teknik Informatika
-        abbreviation:
-          type: string
-          example: TI
-        name_en:
-          type: string
-          example: Informatics Engineering
-        abbreviation_en:
-          type: string
-          example: IE
-        national_code:
-          type: string
-          example: 12345
-        faculty_id:
-          type: integer
-          example: 5
-        created_at:
-          type: string
-          format: date-time
-          example: "2023-01-15T08:00:00Z"
-        updated_at:
-          type: string
-          format: date-time
-          example: "2023-06-20T10:30:00Z"
-    Staff:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1001
-        name:
-          type: string
-          example: Budi Santoso
-        nik:
-          type: string
-          example: 3172012345678901
-        nip:
-          type: string
-          example: 1987654321
-        karpeg:
-          type: string
-          example: 1234567890
-        npwp:
-          type: string
-          example: 09.123.456.7-890.000
-        gender:
-          type: string
-          example: L
-        birthday:
-          type: string
-          format: date
-          example: 1980-05-15
-        birthplace:
-          type: string
-          example: Jakarta
-        phone:
-          type: string
-          example: +6281234567890
-        address:
-          type: string
-          example: Jl. Merdeka No. 10, Jakarta
-        department_id:
-          type: integer
-          example: 15
-        marital_status:
-          type: string
-          example: Married
-        religion:
-          type: string
-          example: Islam
-        employment_status:
-          type: string
-          example: Permanent
-        status:
-          type: integer
-          example: 1
-    Lecturer:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1001
-        name:
-          type: string
-          example: Budi Santoso
-        nik:
-          type: string
-          example: 3172012345678901
-        nip:
-          type: string
-          example: 1987654321
-        nidn:
-          type: string
-          example: 0012345601
-        karpeg:
-          type: string
-          example: 1234567890
-        npwp:
-          type: string
-          example: 09.123.456.7-890.000
-        gender:
-          type: string
-          example: L
-        birthday:
-          type: string
-          format: date
-          example: 1980-05-15
-        birthplace:
-          type: string
-          example: Jakarta
-        phone:
-          type: string
-          example: +6281234567890
-        address:
-          type: string
-          example: Jl. Merdeka No. 10, Jakarta
-        department_id:
-          type: integer
-          example: 15
-        marital_status:
-          type: string
-          example: Married
-        religion:
-          type: string
-          example: Islam
-        employment_status:
-          type: string
-          example: Permanent
-        status:
-          type: integer
-          example: 1
-    Student:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1001
-        name:
-          type: string
-          example: Budi Santoso
-        nik:
-          type: string
-          example: 3172012345678901
-        nim:
-          type: string
-          example: 1987654321
-        year:
-          type: integer
-          example: 2000
-        gender:
-          type: string
-          example: L
-        birthday:
-          type: string
-          format: date
-          example: 1980-05-15
-        birthplace:
-          type: string
-          example: Jakarta
-        phone:
-          type: string
-          example: +6281234567890
-        address:
-          type: string
-          example: Jl. Merdeka No. 10, Jakarta
-        department_id:
-          type: integer
-          example: 15
-        marital_status:
-          type: string
-          example: Married
-        religion:
-          type: string
-          example: Islam
-        status:
-          type: integer
-          example: 1
-        counselor_id:
-          type: integer
-          example: 2001
   securitySchemes:
     bearerAuth:
       type: http
@@ -1154,3 +1039,465 @@ components:
       type: apiKey
       in: header
       name: X-API-KEY
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        name:
+          type: string
+          nullable: true
+        email:
+          type: string
+        type:
+          type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    UserInput:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        name:
+          type: string
+    Building:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        abbreviation:
+          type: string
+        floors:
+          type: integer
+        build_year:
+          type: integer
+        type:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    BuildingInput:
+      type: object
+      required:
+        - name
+        - abbreviation
+        - floors
+        - build_year
+        - type
+      properties:
+        name:
+          type: string
+        abbreviation:
+          type: string
+        floors:
+          type: integer
+        build_year:
+          type: integer
+        type:
+          type: string
+    Room:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        abbreviation:
+          type: string
+        floor:
+          type: integer
+        number:
+          type: integer
+          nullable: true
+        capacity:
+          type: integer
+          nullable: true
+        size:
+          type: string
+        location:
+          type: string
+        public:
+          type: integer
+        status:
+          type: integer
+        availability:
+          type: integer
+        type:
+          type: string
+        building_id:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    RoomInput:
+      type: object
+      required:
+        - name
+        - abbreviation
+        - floor
+        - size
+        - location
+        - public
+        - status
+        - availability
+        - type
+        - building_id
+      properties:
+        name:
+          type: string
+        abbreviation:
+          type: string
+        floor:
+          type: integer
+        number:
+          type: integer
+        capacity:
+          type: integer
+        size:
+          type: string
+        location:
+          type: string
+        public:
+          type: integer
+        status:
+          type: integer
+        availability:
+          type: integer
+        type:
+          type: string
+        building_id:
+          type: integer
+    Faculty:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        abbreviation:
+          type: string
+        type:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    FacultyInput:
+      type: object
+      required:
+        - name
+        - abbreviation
+        - type
+      properties:
+        name:
+          type: string
+        abbreviation:
+          type: string
+        type:
+          type: string
+    Department:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        abbreviation:
+          type: string
+        name_en:
+          type: string
+        abbreviation_en:
+          type: string
+        national_code:
+          type: string
+        faculty_id:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    DepartmentInput:
+      type: object
+      required:
+        - name
+        - abbreviation
+        - name_en
+        - abbreviation_en
+        - national_code
+        - faculty_id
+      properties:
+        name:
+          type: string
+        abbreviation:
+          type: string
+        name_en:
+          type: string
+        abbreviation_en:
+          type: string
+        national_code:
+          type: string
+        faculty_id:
+          type: integer
+    Lecturer:
+      type: object
+      properties:
+        id:
+          type: integer
+        nik:
+          type: string
+        name:
+          type: string
+        nip:
+          type: string
+          nullable: true
+        nidn:
+          type: string
+          nullable: true
+        karpeg:
+          type: string
+          nullable: true
+        npwp:
+          type: string
+          nullable: true
+        gender:
+          type: string
+          nullable: true
+        birthday:
+          type: string
+          format: date-time
+          nullable: true
+        birthplace:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        department_id:
+          type: integer
+        status:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    LecturerInput:
+      type: object
+      required:
+        - nik
+        - name
+        - department_id
+      properties:
+        nik:
+          type: string
+        name:
+          type: string
+        nip:
+          type: string
+        nidn:
+          type: string
+        karpeg:
+          type: string
+        npwp:
+          type: string
+        gender:
+          type: string
+        birthday:
+          type: string
+          format: date-time
+        birthplace:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        department_id:
+          type: integer
+        status:
+          type: integer
+    Staff:
+      type: object
+      properties:
+        id:
+          type: integer
+        nik:
+          type: string
+        name:
+          type: string
+        nip:
+          type: string
+          nullable: true
+        karpeg:
+          type: string
+          nullable: true
+        npwp:
+          type: string
+          nullable: true
+        gender:
+          type: string
+          nullable: true
+        birthday:
+          type: string
+          format: date-time
+          nullable: true
+        birthplace:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        department_id:
+          type: integer
+        status:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    StaffInput:
+      type: object
+      required:
+        - nik
+        - name
+        - department_id
+      properties:
+        nik:
+          type: string
+        name:
+          type: string
+        nip:
+          type: string
+        karpeg:
+          type: string
+        npwp:
+          type: string
+        gender:
+          type: string
+        birthday:
+          type: string
+          format: date-time
+        birthplace:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        department_id:
+          type: integer
+        status:
+          type: integer
+    Student:
+      type: object
+      properties:
+        id:
+          type: integer
+        nik:
+          type: string
+        nim:
+          type: string
+        name:
+          type: string
+        year:
+          type: integer
+        gender:
+          type: string
+          nullable: true
+        birthday:
+          type: string
+          format: date-time
+          nullable: true
+        birthplace:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        department_id:
+          type: integer
+        status:
+          type: integer
+        counselor_id:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    StudentInput:
+      type: object
+      required:
+        - nik
+        - nim
+        - name
+        - year
+        - department_id
+      properties:
+        nik:
+          type: string
+        nim:
+          type: string
+        name:
+          type: string
+        year:
+          type: integer
+        gender:
+          type: string
+        birthday:
+          type: string
+          format: date-time
+        birthplace:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        department_id:
+          type: integer
+        status:
+          type: integer
+        counselor_id:
+          type: integer
