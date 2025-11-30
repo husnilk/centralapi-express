@@ -30,32 +30,6 @@ model User {
   updated_at        DateTime  @updatedAt
 }
 
-model Faculty {
-  id           Int          @id @default(autoincrement())
-  name         String
-  abbreviation String
-  type         String
-  created_at   DateTime     @default(now())
-  updated_at   DateTime     @updatedAt
-  departments  Department[]
-}
-
-model Department {
-  id              Int        @id @default(autoincrement())
-  name            String
-  abbreviation    String
-  name_en         String
-  abbreviation_en String
-  national_code   String
-  faculty_id      Int
-  faculty         Faculty    @relation(fields: [faculty_id], references: [id])
-  created_at      DateTime   @default(now())
-  updated_at      DateTime   @updatedAt
-  lecturers       Lecturer[]
-  staffs          Staff[]
-  students        Student[]
-}
-
 model Building {
   id           Int      @id @default(autoincrement())
   name         String
@@ -87,6 +61,54 @@ model Room {
   updated_at   DateTime @updatedAt
 }
 
+model Faculty {
+  id           Int          @id @default(autoincrement())
+  name         String
+  abbreviation String
+  type         String
+  created_at   DateTime     @default(now())
+  updated_at   DateTime     @updatedAt
+  departments  Department[]
+}
+
+model Department {
+  id              Int        @id @default(autoincrement())
+  name            String
+  abbreviation    String
+  name_en         String
+  abbreviation_en String
+  national_code   String
+  faculty_id      Int
+  faculty         Faculty    @relation(fields: [faculty_id], references: [id])
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+  lecturers       Lecturer[]
+  staffs          Staff[]
+  students        Student[]
+}
+
+model Staff {
+  id               Int        @id @default(autoincrement())
+  nik              String
+  name             String
+  nip              String?
+  karpeg           String?
+  npwp             String?
+  gender           String?
+  birthday         DateTime?
+  birthplace       String?
+  phone            String?
+  address          String?
+  department_id    Int
+  department       Department @relation(fields: [department_id], references: [id])
+  photo            String?
+  marital_status   String?
+  religion         String?
+  employment_status  String?
+  status           Int        @default(1)
+  created_at       DateTime   @default(now())
+  updated_at       DateTime   @updatedAt
+}
 model Lecturer {
   id               Int        @id @default(autoincrement())
   nik              String
@@ -108,29 +130,6 @@ model Lecturer {
   association_type String?
   status           Int        @default(1)
   students         Student[]
-  created_at       DateTime   @default(now())
-  updated_at       DateTime   @updatedAt
-}
-
-model Staff {
-  id               Int        @id @default(autoincrement())
-  nik              String
-  name             String
-  nip              String?
-  karpeg           String?
-  npwp             String?
-  gender           String?
-  birthday         DateTime?
-  birthplace       String?
-  phone            String?
-  address          String?
-  department_id    Int
-  department       Department @relation(fields: [department_id], references: [id])
-  photo            String?
-  marital_status   String?
-  religion         String?
-  association_type String?
-  status           Int        @default(1)
   created_at       DateTime   @default(now())
   updated_at       DateTime   @updatedAt
 }

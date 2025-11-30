@@ -44,13 +44,11 @@ const login = (req, res) => {
     })
     .then((user) => {
       if (user && bcrypt.compareSync(password, user.password)) {
-        var token = jwt.sign(
-          { id: user.id, email: user.email, name: user.name },
-          process.env.TOKEN_SECRET,
-          {
-            expiresIn: "1800s",
-          }
-        );
+        //Generate token JWT
+        const payload = { id: user.id, email: user.email, name: user.name };
+        var token = jwt.sign(payload, process.env.TOKEN_SECRET, {
+          expiresIn: "1800s",
+        });
         res.status(200).json({
           message: "Login successful",
           token: token,

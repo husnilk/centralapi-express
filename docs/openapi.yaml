@@ -710,7 +710,7 @@ paths:
       tags:
         - Lecturers
       security:
-        - bearerAuth:
+        - bearerAuth: []
       summary: Daftar semua dosen
       description: "Peringatan: Endpoint ini tidak terautentikasi."
       responses:
