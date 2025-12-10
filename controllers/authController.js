@@ -1,14 +1,14 @@
-const { PrismaClient } = require("../generated/prisma");
+import { PrismaClient } from "../generated/prisma";
 const prisma = new PrismaClient();
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
-dotenv.config();
+import { hash, compareSync } from "bcrypt";
+import { sign } from "jsonwebtoken";
+import { config } from "dotenv";
+config();
 
 const register = (req, res) => {
   var { name, email, password } = req.body;
 
-  bcrypt.hash(password, 10, (err, hashedPassword) => {
+  hash(password, 10, (err, hashedPassword) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Password hashing failed" });
@@ -43,10 +43,10 @@ const login = (req, res) => {
       },
     })
     .then((user) => {
-      if (user && bcrypt.compareSync(password, user.password)) {
+      if (user && compareSync(password, user.password)) {
         //Generate token JWT
         const payload = { id: user.id, email: user.email, name: user.name };
-        var token = jwt.sign(payload, process.env.TOKEN_SECRET, {
+        var token = sign(payload, process.env.TOKEN_SECRET, {
           expiresIn: "1800s",
         });
         res.status(200).json({
@@ -73,7 +73,7 @@ const profile = async (req, res) => {
   res.json({ message: "User profile", user: user }).status(200);
 };
 
-module.exports = {
+export default {
   register,
   login,
   profile,

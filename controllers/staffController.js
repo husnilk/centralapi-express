@@ -1,4 +1,4 @@
-const { PrismaClient } = require("../generated/prisma-client");
+import { PrismaClient } from "../generated/prisma-client";
 const prisma = new PrismaClient();
 
 // List All Staff Members
@@ -80,8 +80,8 @@ const addStaff = async (req, res) => {
         email,
         type,
         avatar,
-        photo
-      }
+        photo,
+      },
     });
 
     const newStaff = await prisma.staffProfile.create({
@@ -111,15 +111,12 @@ const addStaff = async (req, res) => {
       data: { ...newUser, ...newStaff },
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: "Failed to add staff member."
-      });
+    res.status(500).json({
+      status: "error",
+      message: "Failed to add staff member.",
+    });
   }
 };
-
 
 // Update staff member
 const updateStaff = async (req, res) => {
@@ -157,8 +154,8 @@ const updateStaff = async (req, res) => {
         email,
         type,
         avatar,
-        photo
-      }
+        photo,
+      },
     });
 
     const updatedStaff = await prisma.staffProfile.update({
@@ -188,14 +185,12 @@ const updateStaff = async (req, res) => {
       data: { ...updatedUser, ...updatedStaff },
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: "Failed to update staff member."
-      });
+    res.status(500).json({
+      status: "error",
+      message: "Failed to update staff member.",
+    });
   }
-}
+};
 
 const deleteStaff = async (req, res) => {
   try {
@@ -208,18 +203,15 @@ const deleteStaff = async (req, res) => {
     });
 
     res.status(204).send();
-  }
-  catch (error) {
-    res
-      .status(500)
-      .json({
-        status: "error",
-        message: "Failed to delete staff member."
-      });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Failed to delete staff member.",
+    });
   }
 };
 
-module.exports = {
+export default {
   getAllStaff,
   getStaffById,
   addStaff,
