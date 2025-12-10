@@ -18,6 +18,8 @@ servers:
   - url: https://sandbox-api.fti.unand.ac.id/
     description: Sandbox Server
 tags:
+  - name: API
+    description: Endpoint untuk manajemen data universitas.
   - name: Authentication
     description: Endpoint untuk registrasi, login, dan manajemen profil pengguna.
   - name: Profile
@@ -40,6 +42,27 @@ tags:
     description: Endpoint untuk manajemen data mahasiswa di universitas.
 
 paths:
+  /api/buildings:
+    get:
+      summary: Mendapatkan Daftar Gedung
+      tags:
+        - API
+      description: Endpoint untuk mengambil daftar gedung di kampus.
+      responses:
+        "200":
+          description: Daftar gedung berhasil diambil.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Building"
+        "404":
+          description: Gedung tidak ditemukan.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /auth/register:
     post:
       summary: Registrasi Pengguna Baru

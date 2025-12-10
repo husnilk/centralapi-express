@@ -1,13 +1,19 @@
-const express = require("express");
-const router = express.Router();
-const buildingController = require("../controllers/buildingController");
-const authenticateToken = require("../middleware/authenticateToken");
+import { Router } from "express";
+const router = Router();
+import {
+  listBuildings,
+  getBuildingById,
+  addBuilding,
+  updateBuilding,
+  deleteBuilding,
+} from "../controllers/buildingController";
+import authenticateToken from "../middleware/authenticateToken";
 
 // List all buildings
-router.get("/", authenticateToken, buildingController.listBuildings);
-router.get("/:id", authenticateToken, buildingController.getBuildingById);
-router.post("/", authenticateToken, buildingController.addBuilding);
-router.put("/:id", authenticateToken, buildingController.updateBuilding);
-router.delete("/:id", authenticateToken, buildingController.deleteBuilding);
+router.get("/", authenticateToken, listBuildings);
+router.get("/:id", authenticateToken, getBuildingById);
+router.post("/", authenticateToken, addBuilding);
+router.put("/:id", authenticateToken, updateBuilding);
+router.delete("/:id", authenticateToken, deleteBuilding);
 
-module.exports = router;
+export default router;

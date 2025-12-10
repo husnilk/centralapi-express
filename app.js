@@ -3,6 +3,8 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
+var apiRouter = require("./routes/api");
+
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var authRouter = require("./routes/auth");
@@ -34,5 +36,6 @@ app.use("/department", departmentRouter);
 app.use("/staff", staffRouter);
 app.use("/lecturer", lecturerRouter);
 app.use("/student", studentRouter);
+app.use("/api", apiRouter);
 
 module.exports = app;
